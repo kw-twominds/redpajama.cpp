@@ -25,6 +25,11 @@
 #include <signal.h>
 #endif
 
+// pybind11
+#include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
+namespace py = pybind11;
+
 static console_state con_st;
 static gptneox_context ** g_ctx;
 
@@ -45,7 +50,15 @@ void sigint_handler(int signo) {
 }
 #endif
 
-int main(int argc, char ** argv) {
+int chat(int argc, std::vector<std::string> strings) {
+    std::vector<char*> cstrings;   
+    cstrings.reserve(strings.size());
+
+    for(auto& s: strings)
+        cstrings.push_back(&s[0]);
+        
+    char ** argv = cstrings.data();
+
     gpt_params params;
     params.model = "./examples/redpajama/models/pythia/ggml-RedPajama-INCITE-Chat-3B-v1-f16.bin";
     
@@ -458,10 +471,18 @@ int main(int argc, char ** argv) {
 
     return 0;
 }
-    
-    
-    
-    
-    
 
+int main(int argc, char ** argv) {
+    std::vector<std::string> arguments(argv, argv + argc);
+    return chat(argc, arguments);
+}
+    
+PYBIND11_MODULE(redpajama_chat, m) {
+    m.doc() = "pybind11 redpajama_chat plugin"; // optional module docstring
 
+    m.def("chat", &chat, 
+        "Run RedPajama model with arguments.\n"
+        "The first element is normally the executable name and has to be included.\n"
+        "Example: redpajama_chat.chat(2, ['redpjama_chat', '--help'])",
+        py::arg("argc"), py::arg("argv"));
+}

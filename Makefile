@@ -243,6 +243,18 @@ redpajama-chat: examples/redpajama/main-redpajama-chat.cpp ggml.o gptneox.o comm
 	@echo '====  Run ./redpajama-chat -h for help.  ===='
 	@echo
 
+PYFLAGS := -O3 -Wall -shared -std=c++11 -fPIC
+INCLUDE := $(shell python3 -m pybind11 --includes)
+SUFFIX := $(shell python3-config --extension-suffix)
+
+py-redpajama: examples/redpajama/main-redpajama.cpp ggml.o gptneox.o common-gptneox.o $(OBJS)
+	$(CXX) $(PYFLAGS) $(INCLUDE) $^ -o redpajama$(SUFFIX) $(LDFLAGS)
+	@echo '====  import redpajama  ===='
+
+py-redpajama-chat: examples/redpajama/main-redpajama-chat.cpp ggml.o gptneox.o common-gptneox.o $(OBJS)
+	$(CXX) $(PYFLAGS) $(INCLUDE) $^ -o redpajama_chat$(SUFFIX) $(LDFLAGS)
+	@echo '====  import redpajama  ===='
+
 build-info.h: $(wildcard .git/index) scripts/build-info.sh
 	@sh scripts/build-info.sh > $@.tmp
 	@if ! cmp -s $@.tmp $@; then \
