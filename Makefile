@@ -253,7 +253,7 @@ py-redpajama: examples/redpajama/main-redpajama.cpp ggml.o gptneox.o common-gptn
 
 py-redpajama-chat: examples/redpajama/main-redpajama-chat.cpp ggml.o gptneox.o common-gptneox.o $(OBJS)
 	$(CXX) $(PYFLAGS) $(INCLUDE) $^ -o redpajama_chat$(SUFFIX) $(LDFLAGS)
-	@echo '====  import redpajama  ===='
+	@echo '====  import redpajama_chat  ===='
 
 build-info.h: $(wildcard .git/index) scripts/build-info.sh
 	@sh scripts/build-info.sh > $@.tmp
